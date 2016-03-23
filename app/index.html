@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="A tool for drawing sassy UML diagrams based on syntax. Provides instant feedback and has a customizable styling.">
+<title>nomnoml</title>
+<link rel="stylesheet" href="codemirror/codemirror.css">
+<link rel="stylesheet" href="codemirror/solarized.nomnoml.css">
+<link rel="stylesheet" href="nomnoml.css">
+<link rel="shortcut icon" href="favicon.png">
+</head>
+<body>
+	<div class="wrap">
+
+		<canvas id="canvas"></canvas>
+		<textarea id="textarea" spellcheck="false"></textarea>
+		<div id="linenumbers"></div>
+		<div id="canvas-panner"></div>
+
+		<div id="reference" class="sidebar">
+			<div class="content">
+				<h2>Association types</h2>
+				<b>association</b> -<br>
+				<b>association</b> -&gt;<br>
+				<b>association</b> &lt;-&gt;<br>
+				<b>dependency</b> --&gt;<br>
+				<b>dependency</b> &lt;--&gt;<br>
+				<b>generalization</b> -:&gt;<br>
+				<b>generalization</b> &lt;:-<br>
+				<b>implementation</b> --:&gt;<br>
+				<b>implementation</b> &lt;:--<br>
+				<b>composition</b> +-<br>
+				<b>composition</b> +-&gt;<br>
+				<b>aggregation</b> o-<br>
+				<b>aggregation</b> o-&gt;<br>
+				<b>note</b> --<br>
+				<b>hidden</b> -/-<br>
+
+				<h2>Classifier types</h2>
+				[name]<br>
+				[&lt;abstract&gt; name]<br>
+				[&lt;instance&gt; name]<br>
+				[&lt;note&gt; name]<br>
+				[&lt;package&gt; name]<br>
+				[&lt;frame&gt; name]<br>
+				[&lt;database&gt; name]<br>
+				[&lt;start&gt; name]<br>
+				[&lt;end&gt; name]<br>
+				[&lt;state&gt; name]<br>
+				[&lt;choice&gt; name]<br>
+				[&lt;input&gt; name]<br>
+				[&lt;sender&gt; name]<br>
+				[&lt;receiver&gt; name]<br>
+				[&lt;actor&gt; name]<br>
+				[&lt;usecase&gt; name]<br>
+				[&lt;label&gt; name]<br>
+				[&lt;hidden&gt; name]<br>
+
+				<h2>Directives</h2>
+				#arrowSize: 1<br>
+				#bendSize: 0.3<br>
+				#direction: down | right<br>
+				#gutter: 5<br>
+				#edgeMargin: 0<br>
+				#edges: hard | rounded<br>
+				#fill: #eee8d5; #fdf6e3<br>
+				#fillArrows: false<br>
+				#font: Calibri<br>
+				#fontSize: 12<br>
+				#leading: 1.25<br>
+				#lineWidth: 3<br>
+				#padding: 8<br>
+				#spacing: 40<br>
+				#stroke: #33322E<br>
+				#title: filename<br>
+				#zoom: 1<br>
+			</div>
+
+			<div class="logo-background"></div>
+		</div>
+
+		<div id="about" class="sidebar">
+			<div class="content">
+				<p>Hello, this is nomnoml, a tool for drawing UML diagrams based on a simple syntax.
+				<p>Try and edit the code on the left and watch the diagram change. Any changes are saved to the browser's <i>localStorage</i>, so your diagram should be here the next time, (but no guarantees).</p>
+				<p>Created by <a href="mailto:daniel.kallin@gmail.com">Daniel Kallin</a> and hosted on <a href="https://github.com/skanaar/nomnoml" target="_blank">GitHub</a> for your perusal.</p>
+				<p>Nomnoml was made possible by the cool projects
+				<a target="_blank" href="http://zaach.github.io/jison/">jison</a>,
+				<a target="_blank" href="https://github.com/cpettitt/dagre">dagre</a>,
+				<a target="_blank" href="http://lodash.com">lodash</a>,
+				<a target="_blank" href="http://typicons.com/">typicons</a> ,
+				<a target="_blank" href="http://zeptojs.com/">zepto</a>, 
+				<a target="_blank" href="https://codemirror.net/">codemirror</a> and
+				<a target="_blank" href="http://ethanschoonover.com/solarized">solarized</a>.
+				</p>
+
+				<hr>
+
+				<h2>Interaction</h2>
+
+				<p>The canvas can be panned and zoomed by dragging and scrolling in the right hand third of the canvas.
+				</p>
+
+				<img src="img/interaction-tutorial.png" alt="interaction tutorial">
+
+				<p>Downloaded image files will be given the filename in the <tt>#title</tt> directive.
+				</p>
+
+				<p>The editor supports a subset of <i>Sublime Text's</i> <a href="https://codemirror.net/demo/sublime.html" target="_blank">keymappings</a>.
+				</p>
+
+				<hr>
+
+				<h2>Examples</h2>
+
+				<a target="_BLANK" href="#view/[<frame>Decorator%20pattern|%0A%20%20[<abstract>Component||+%20operation()]%0A%20%20[Client]%20depends%20-->%20[Component]%0A%20%20[Decorator|-%20next:%20Component]%0A%20%20[Decorator]%20decorates%20--%20[ConcreteComponent]%0A%20%20[Component]%20<:-%20[Decorator]%0A%20%20[Component]%20<:-%20[ConcreteComponent]%0A]">Decorator pattern</a><br>
+				<a target="_BLANK" href="#view/[<frame>Strategy%20pattern|%0A%20%20[client]%20o-%20[<abstract>Strategy|+%20operation()]%0A%20%20[Strategy]%20<:--%20[StrategyA]%0A%20%20[Strategy]%20<:--%20[StrategyB]%0A]">Strategy pattern</a><br>
+				<a target="_BLANK" href="#view/[<package>UML%20Representation|%0A%20%20[Compartment|lines:%20string*;nodes:%20Classifier*;relations:%20Relations*]%0A%20%20[Classifier|type:%20string;name:%20string;compartments:%20Compartment*;width:%20int;height:%20int;x:%20int;y:%20int]%0A%20%20[Relation|startLabel:%20string;endLabel:%20string;type:%20string;startShape:%20string;endShape:%20string;path:%20Point*]%0A%20%20[Compartment]+->[Classifier]%0A%20%20[Classifier]+->[Compartment]%0A%20%20[Compartment]+->[Relation]%0A]%0A[parser]-->[UML%20Representation]%0A[layouter||layout(ast:%20Compartment)]%0A[renderer||render(d:%20Compartment)]%0A[parser||parse(source:%20String):%20Classifier]+->[Jison]%0A[layouter]-->[UML%20Representation]%0A[layouter]+->[dagre]%0A[renderer]-->[UML%20Representation]%0A[renderer]o->[<instance>:Canvas]%0A[measurer]<:--[renderer]%0A[layouter]->[measurer]">nomnoml architecture</a>
+
+				<hr>
+
+				<h2>Usage</h2>
+
+				<label>Car has an Engine</label>
+				[Car]-&gt;[Engine]
+
+				<label>Car owns an arbitrary number of blemished</label>
+				[Car] +-&gt; 0..* [RustPatches]
+
+				<label>Car knows its Manufacturer</label>
+				[Car]o-&gt;[Manufacturer]
+
+				<label>Car depends on Fuel</label>
+				[Car]--&gt;[Fuel]
+
+				<label>Pickup inherits from Car</label>
+				[Pickup]-:&gt;[Car]
+
+				<label>Car implements interface IVehicle</label>
+				[Car]--:&gt;[IVehicle]
+
+				<label>Paul and Ron have a named association</label>
+				[Paul] friend - [Ron]
+
+				<label>They both depend on each other</label>
+				[Chicken]&lt;-&gt;[Egg]
+
+				<label>Car has some attributes</label>
+				[Car|maxSpeed: Float;color: Color|]
+
+				<label>Car has several valves</label>
+				[Car| valves: Valve\[\] ]
+
+				<label>Engine has an operation</label>
+				[Engine||start()]
+
+				<label>Engine has internal parts</label>
+				[Engine|<br>
+				&nbsp;&nbsp;[Cylinder]->1[Piston]<br>
+				&nbsp;&nbsp;[Cylinder]->2[Valve]<br>
+				]<br>
+
+				<label>Engine is an abstract class</label>
+				[&lt;abstract&gt;Engine||start()]
+
+				<label>Car is in the package 'vehicles'</label>
+				[&lt;package&gt;vehicles|[Car]]
+
+				<label>Car has an attached note</label>
+				[Car]--[&lt;note&gt;only driven;twice a month]
+
+				<label>Set font</label>
+				#font: Times
+
+				<label>Layout the diagram really tight</label>
+				#fontSize: 8<br>
+				#spacing: 12<br>
+				#padding: 3
+
+			</div>
+			<div class="logo-background"></div>
+		</div>
+
+		<div id="linemarker"></div>
+
+		<div class="tools">
+			<a class="logo" href="javascript:void(0)" onclick="nomnoml.toggleSidebar('about')" title="About nomnoml"><h1>nomnoml</h1> &nbsp;</a>
+			<a href="javascript:void(0)" onclick="nomnoml.toggleSidebar('about')" title="About nomnoml">
+				<img src="img/info-large.png">
+			</a>
+			<a href="javascript:void(0)" onclick="nomnoml.toggleSidebar('reference')" title="Language reference">
+				<img src="img/book.png">
+			</a>
+			<a id="savebutton" href="javascript:void(0)" download="nomnoml.png" title="Download snapshot of this diagram">
+				<img src="img/camera.png">
+			</a>
+			<a id="linkbutton" href="javascript:void(0)" target="_blank" title="Shareable link to this diagram">
+				<img src="img/link.png">
+			</a>
+			<a href="javascript:nomnoml.discardCurrentGraph()" title="Discard this diagram">
+				<img src="img/trash.png">
+			</a>
+			<span id="tooltip"></span>
+			<span id="storage-status">
+				View mode, changes are not saved.
+				<a href="javascript:nomnoml.saveViewModeToStorage()"
+				   title="Save this diagram to localStorage">save</a>
+				<a href="javascript:nomnoml.exitViewMode()"
+				   title="Discard this diagram">close</a>
+			</span>
+
+			<div class="canvas-tools" id="canvas-tools">
+				<a href="javascript:nomnoml.magnifyViewport(2)" title="Zoom in">
+					<img src="img/plus.png">
+				</a>
+				<a href="javascript:nomnoml.resetViewport()" title="Reset zoom and panning">
+					<img src="img/equals.png">
+				</a>
+				<a href="javascript:nomnoml.magnifyViewport(-2)" title="Zoom out">
+					<img src="img/minus.png">
+				</a>
+			</div>
+		</div>
+	</div>
+
+	<script type="text/vnd.nomnoml.class" id="defaultGraph">[Pirate|eyeCount: Int|raid();pillage()|
+  [beard]--[parrot]
+  [beard]-:>[foul mouth]
+]
+
+[<abstract>Marauder]<:--[Pirate]
+[Pirate]- 0..7[mischief]
+[jollyness]->[Pirate]
+[jollyness]->[rum]
+[jollyness]->[singing]
+[Pirate]-> *[rum|tastiness: Int|swig()]
+[Pirate]->[singing]
+[singing]<->[rum]
+
+[<start>st]->[<state>plunder]
+[plunder]->[<choice>more loot]
+[more loot]->[st]
+[more loot] no ->[<end>e]
+
+[<actor>Sailor] - [<usecase>shiver me;timbers]</script>
+
+	<script src="lib/zepto.min.js"></script>
+	<script src="lib/lodash.min.js"></script>
+	<script src="lib/dagre.min.js"></script>
+	<script src="skanaar.canvas.js"></script>
+	<script src="codemirror/codemirror-compressed.js"></script>
+	<script src="codemirror/nomnoml.codemirror-mode.js"></script>
+	<script src="skanaar.util.js"></script>
+	<script src="skanaar.vector.js"></script>
+	<script src="nomnoml.jison.js"></script>
+	<script src="nomnoml.parser.js"></script>
+	<script src="nomnoml.layouter.js"></script>
+	<script src="nomnoml.renderer.js"></script>
+	<script src="nomnoml.js"></script>
+	<script src="nomnoml.app.js"></script>
+
+</body>
+</html>
